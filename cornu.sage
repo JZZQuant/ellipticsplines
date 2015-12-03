@@ -1,20 +1,32 @@
 #!/usr/bin/env sage
+from sage.symbolic.integration.integral import indefinite_integral
 
-s,x,y,u,p=var('s x y u p')
+#cornu spiral
+s=var('u')
 parametric_plot((lambda p: numerical_integral(cos(u**2),0,p)[0], lambda p: numerical_integral(sin(u**2),0,p)[0]), (-3*pi/2, 3*pi/2))
 
-m=3
-n=2
-parametric_plot((lambda p: numerical_integral(cos(m*u-(u**2)/2),0,p)[0], lambda p: numerical_integral(sin(m*u-(u**2)/2),0,p)[0]), (0, n))
+#fusion model
+#y component integral is 0 and final tangent or argument is also 0, for every value of k we can fit this curve
+#f(l)=pi, numerical_integral(sin(f),0,z)[0]=0
+s=var('s')
+k=0
+p=2.4
+l=7*pi/6
+f = p*s-(s**2)/2+2*sqrt(k)*jacobi('dn',p-s,k)
+parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (0, l))
 
-k=0.9
-parametric_plot((lambda s: 2*elliptic_eu(s,k)-s,lambda s: -2*k*jacobi('cn', s, k) ), (0, m-n))
+#elongated model
+s=var('s')
+l=sqrt(2*4*pi/3)
+f = l*s-(s**2)/2
+parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0]*(z**4), lambda z: numerical_integral(sin(f),0,z)[0]*(z**4)), (0, l))
 
-#continuity condition m-n>3 , n >1,2 k around 0.2 , 0.3   
-#k= horizontal strach of elastica
-#m-n cuve nature of elastica with a tangential
-#n sretch or bent of spiral length
-# another relation between m,visible length and k can be retrieved from the perpendicular visbility condition
-# kassumption  assume the k value to be constant for all types of paper
-u-elliptic_f(m*u-(u**2)/2,k)=0
-
+#transformed cornu spiral
+s= var('s')
+l= sqrt(5*pi/4)
+f= s**2
+x= numerical_integral(cos(f),0,l)[0]
+y= numerical_integral(sin(f),0,l)[0]
+c= cos(l**2)
+s= sin(l**2)
+parametric_plot((lambda z: c*(x -numerical_integral(cos(f),0,z)[0] ) + s*(y - numerical_integral(sin(f),0,z)[0]),                 lambda z: s*(x -numerical_integral(cos(f),0,z)[0] ) - c*(y  - numerical_integral(sin(f),0,z)[0])), (-sqrt(pi/4), l))
