@@ -12,7 +12,3 @@ f = (l*s-(s**2)/2)
 parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (0, sqrt(pi)))
 
 
-
-
-
-
