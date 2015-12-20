@@ -1,7 +1,8 @@
-\documentclass[twocolumn,longbibliography]{revtex4-1}
+\documentclass[longbibliography]{revtex4-1}
 \usepackage{hyperref}
 \usepackage{verbatim}
 \usepackage[imagemagick]{sagetex}
+\usepackage{mathtools}
 %can be removed only for testing
 \usepackage{lipsum}
 \setlength{\sagetexindent}{10ex}
@@ -35,11 +36,143 @@ when a book is opened there is a certain curvature that surfaces of the pages fo
 \begin{figure*}
   \centering
   \caption{OpenBook}
-  \includegraphics[scale=5]{figure1.jpg} 
+  \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{figure1.jpg} 
 \end{figure*}
 
 \section{Proposed Solution}
+The bending of a paper material is similar to that of a bending of beam. Historically there are two approaches for resolving this problem using calculus of variation . Minimizig the square of infinitesimal curvature leads to elastica solution or MEC and in case of minimizing curvature differential we arrive at MVC . At small angles of deflection both the solutions are equivalent. MVC approach is computationally and matheatically easy to represent and for the most part we would use the cornu spiral due to its computational ease and the natural spiral nature that is provides for the problem.The two curves can be parametrically ploted in sage as below
 
+\begin{sagesilent}
+s,x,y,p = var('s x y p')
+e = var('e', latex_name=r'\vartheta')
+k=0
+p=2.4
+l=7*pi/6
+f = s**2
+\end{sagesilent}
+\[
+x=\sage{sin(s**2)}
+\]
+\[
+y=\sage{cos(s**2)}
+\]
+\begin{center}
+\sageplot{parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (-l, l))}
+\end{center}
+
+A similar bending plot for smaller angles can be generated for using elastica based models it involves jacobi integrals and a sage math based code and plot for it would be:
+
+\begin{sageblock}
+k=0.3
+parametric_plot((lambda s: 2*k*jacobi('cn', s, k),lambda s: 2*elliptic_eu(s,k)-s ), (0, 1))
+\end{sageblock}
+
+
+\begin{center}
+\sageplot{parametric_plot((lambda s:  2*elliptic_eu(s,k)-s ,lambda s: 2*k*jacobi('cn', s, k)  ), (0, 1))}
+\end{center}
+
+\section{Modelling The cross section of a page}
+
+Eulers assumption for modelling the curvature of minimizing variations is very clearly described in his paper where he assumes the curvature of a bent rod or elastica is directly proportional the the length of the arc. which eventualy leads to a cornu spiral , but the main difference is a typical cornu spiral has its coondinates placed at the non axial end of the cantilever loading so we can modify eulers approach by plaing coordinates at the axial ending
+
+In eulers coordinate system
+
+$\kappa=s$
+
+$\frac{d\theta}{ds} =s$
+
+
+if the cross length of the paper is l the same above equaiton cab be writtern as
+
+$\kappa=s$
+
+$\frac{d\theta}{ds} =(m-s)$
+
+which would lead to the parametric equaitons 
+
+\begin{sagesilent}
+m=var('m')
+\end{sagesilent}
+
+\[
+x=\sage{sin(m*s-(s**2)/2)}
+\]
+\[
+y=\sage{cos(m*s-(s**2)/2)}
+\]
+
+a better way to handle this would be to actually transate the cornu spiral to the end using brute force transformation as that would give us the advantage of bending the paper even in negative angles, a final plot for the eqautions would look like these:
+
+\begin{sagesilent}
+l=sqrt(2*4*pi/3)
+f = (l*s-(s**2)/2)
+\end{sagesilent}
+
+\sageplot{parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (0, l))}
+
+The above plot is a very easy way to represent an axial bending of a beam or a paper but in reality there is always an aazial force that is applied while beding a paper which give it the more flattened shape.
+
+\section{Stretching the elastica action}
+When you laterally sretch the elastica the new parametric coordinates can be expressed as functions of old x,y . This is particularly useful to noe that all curvatures of elastica can be represented with in one degree of freedom using the arc length.
+
+so if we call $x^{'}$ and $y^{'}$ as the new parametric cordinates one can represent the equation in terms of old cordinates and arc length $s$ as $x^{'} =  X(x,s)$ and $y^{'} = Y(y,s)$ it is easy and convinient to see that X and Y are same as lateral action of force is independent of and chosen coordinate system  we can replace $X$ and $Y$ by a new action function $f$. which acts over the transformation coordinates $x^{i}$ which in this case are $x$ or $y$
+
+\newtheorem{thm}{Theorem}
+\begin{thm}[Theorem]
+The stretch action function is directly proportional to the coordinate and also the arc length
+\end{thm}
+
+let us rewrite the action function as $F(x^{i},s)$ a taylor series expansion first in one coordinate $x^{i}$ and then in $s$
+it is easy to see that the transofrmation function easily vanishes when $x^{i}=0$ or $s=0$ or $\theta=0$
+hence the constanat term is going to vanish in taylor expansion as $F(0,s)=0$ and $F(x^{i},0)=0$ ,so x and s can be extracted out.
+and hence $F(x^{i},s) = xsG(x^{i},s)$
+
+For the ease of our computation we can actually re write the above parametric equations in liu with the above theorem and rewrite them as
+
+ $x^{0}= s^{\lambda} (\int_{0}^{s} cos(m*s-(s**2)/2) ds)$ 
+ $x^{1}= s^{\lambda} (\int_{0}^{s} sin(m*s-(s**2)/2) ds)$ 
+
+ here lambda is a stretching constant(the stretchin parameter can actually be replaced with any function of $s$ but to keep the number of parameters as little as possible we stick with just one constant)
+
+ by using the approximations we can replot the curve with a modeled lateral force
+
+\begin{sageblock}
+#fianal cornu based model
+s,x= var('s x')
+assume(x>0)
+l= 2.170803
+e= -0.78622
+f= s**2
+m= numerical_integral(cos(f),0,l)[0]
+n= numerical_integral(sin(f),0,l)[0]
+a= numerical_integral(cos(f),0,e)[0]
+b= numerical_integral(sin(f),0,e)[0]
+theta= arctan((b-n)/(a-m))
+c= cos(theta)
+s= sin(theta)
+def x(t): return c*(numerical_integral(cos(f),0,t)[0] -m) + s*( numerical_integral(sin(f),0,t)[0] -n )
+def y(t): return s*(numerical_integral(cos(f),0,t)[0] -m) - c*(numerical_integral(sin(f),0,t)[0] -n )
+parametric_plot((lambda z : x(z)*(l-z)**2,lambda z: y(z)*(l-z)**2), (e, l))
+\end{sageblock}
+
+\sageplot{parametric_plot((lambda z : x(z)*(l-z)**2,lambda z: y(z)*(l-z)**2), (e, l))}
+
+\section{Computational model}
+We can use the above model to build a complete curvature equation of a paper or elastica as inscriptions on a manifold.
+Then the problem of straigtning the leaves on a book would just be the inverse of the function $x^{'}(s)$
+ie $F^{-1}(x^{'})*x^{'}$ is a flattened model of leaves on the book.An easier solution to this problem is to actually create a look up table and create linear array for all the values let $X$ be the matrix that transofrms a flat paper to  a curved one then the inversion of it could be solve compuatationally on an image which $A_{mXn}$ as multiplication of column matrix
+
+\[A_{mXn} \left( \begin{array}{ccc}
+F^{-1}(x^{'}) \\
+F^{-1}(x^{'}) \\
+.\\
+.\\
+.\\
+F^{-1}(x^{'}) \end{array} \right) = X\] 
+
+\section{Future Opportunities}
+This problem leads us to model various other curves that we see in our day to day life for example facial recognition can be heavely dependent onn various types of elastica and spiral based splines as much of human flesh and tissues acts like an elastica  giving it the elastica type curvature cheeks and other human features.We can think of algebraic geometry as a very good alternative to neural networks for learning features of various curves and vision based problems.Unlike neural networks which requires lot of statistical data to identify  features algeberaic goemetry proposes a more natural human ming like approach of extracting features one or two samples of data are all that are probably required to completely understand various curves / features that are present on a human face
 
 \bibliography{Master}
 \end{document}
