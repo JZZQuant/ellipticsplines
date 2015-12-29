@@ -1,15 +1,15 @@
 \documentclass[longbibliography]{revtex4-1}
+\usepackage{hyperref}
 \usepackage{verbatim}
-\usepackage{sagetex}
+\usepackage[imagemagick]{sagetex}
 \usepackage{mathtools}
 %can be removed only for testing
 \usepackage{lipsum}
-\usepackage{epstopdf}
-\usepackage{graphicx}
+\setlength{\sagetexindent}{10ex}
 
 \begin{document}
 \bibliographystyle{plain}%Choose a bibliograhpic style
-\title{On Applications of algebraic geometry to Machine Learning}
+\title{On Machine Learning applications with algebraic geometry}
 \author{G. R. Sasikanth}
 \email{sraghava@gunaatita.com}
 \homepage{https://darkcornerlaboratory.wordpress.com/}
@@ -19,19 +19,20 @@
 \begin{abstract}
  In this article, we briefly describe various tools and approaches that algebraic geometry has to offer to straighten bent objects.
  throughout this article we will consider a specific example of a bent or curved piece of paper which in our case acts very much like an     
- elastica curve. We conclude this article
- with a suggestion to algebraic geometry as a viable and fast performance alternative of neural networks in vision and
- machine learning.The purpose of this article is not to build a full blown framework but to show possibility of using 
- algebraic geometry as an alternative to neural networks for recognizing or extracting features on manifolds .
+ elastica curve. We generalize this model to various shapes of paper which are stretched and bent and then finally implement it on 
+ a standard 80mg paper and see how the folds on paper can be completely removed using python and sage-math code. We conclude this article
+ with a suggestion to algebraic geometry as a viable and fast performer alternative of neural networks in vision and
+ machine learning.The purpose of this article is not to build a full blown framework but to show evidence or possibility of using 
+ algebraic geometry as an alternative to recognizing or extracting features on manifolds.
 \end{abstract}
 \maketitle
 
 \section{Introduction}
 Elliptic curves and curves from algebraic geometry have surfaced many times in the recent years in fields related to computer vision ~\cite{Mumford} and machine learning. Mumford has successfully demonstrated that elastica curves can be represented as the curve that maximizes the likelihood of a random curvature variable.Levin has made a detailed historical report of these curves in detail ~\cite{Levien} .While most of the applications have been indirect in nature in this article we tried to find a direct application to
-elastica curves and Euler spirals.In computer vision modifying a scanned document to a shape that is geometrically flat is a sort out problem. Very effective solutions already exist that can de-skew ,rotate and linearize documents. While most of them are supervised approaches that require large data sets before we can straighten the documents.In this article we try to build a solution that strictly involves geometric modeling of the surface of a paper without requiring to use any supervised machine learning techniques.These applications can be very useful in flattening the surface of a scanned document attached to a book using a hand-held device like mobile phone. This approach can be used very effectively to convert the curved graphics on the center fold end of a book which are often very difficult to read from a scanned pdf file. Mobile applications like office lens and cam scanner can use this application to make the scanned view more readable without putting too much stress on resource crunched mobile phones.
+elastica curves and Euler spirals.In computer vision modifying the a scanned document to a shape that is geometrically flat is a much sort out problem. Very effective solutions already exist that can deskew ,rotate and linearize. While most of them are supervised approaches that require a large data sets before we can straighten the document.In this article we try to build a solution that strictly involves geometric model ling of the surface of a paper without requiring to use any supervised machine learning techniques.These applications can be very useful in flattening the surface of a scanned document attached to a book using a hand-held device like mobile phone. This approach can be used very effectively to convert the curved graphics on the center fold end of a book which are often very difficult to read from a scanned pdf file. Mobile applications like office lens and cam scanner can use this application to make the scanned view more readable without putting too much stress on resource crunched mobile phones.
 
 \section{Problem Statement}
-When a book is opened there is a certain curvature that surface of the pages forms, the corners of the pages are usually curved and is often difficult to read the inners parts of .It becomes even harder to read the pages when it is a document scanned from a book with lot of pages. The curvature of the document is shown in a side view in figure 1. The problem is to identify the curve in figure 1 and use computational techniques to geometrically flatten the scanned documents .
+when a book is opened there is a certain curvature that surfaces of the pages forms, the corners of the pages are usually curved and is often difficult to read the inners parts of .It becomes even harder to read the pages when if it is a document scanned from a book with lot of pages. The curvature of the document is shown in a side view in figure 1. The problem is to identify the curve in figure 1 and use computational techniques to geometrically flatten the scanned documents .
 \begin{figure*}
   \centering
   \caption{OpenBook}
@@ -39,7 +40,7 @@ When a book is opened there is a certain curvature that surface of the pages for
 \end{figure*}
 
 \section{Proposed Solution}
-The bending of a paper material is similar to that of a bending beam. Historically there are two approaches for resolving this problem using calculus of variation . Minimizing the square of infinitesimal curvature leads to elastica solution or MEC and in case of minimizing curvature differential we arrive at MVC . At small angles of deflection both the solutions are equivalent. MVC approach is computationally and mathematically easy to represent and for the most part we would use the Cornu spiral due to its computational ease and the natural spiral nature that it provides for the problem.The two curves can be parametrically plotted in sage as below
+The bending of a paper material is similar to that of a bending of beam. Historically there are two approaches for resolving this problem using calculus of variation . Minimizing the square of infinitesimal curvature leads to elastica solution or MEC and in case of minimizing curvature differential we arrive at MVC . At small angles of deflection both the solutions are equivalent. MVC approach is computationally and mathematically easy to represent and for the most part we would use the Cornu spiral due to its computational ease and the natural spiral nature that is provides for the problem.The two curves can be parametrically plotted in sage as below
 
 \begin{sagesilent}
 s,x,y,p = var('s x y p')
@@ -50,58 +51,55 @@ l=7*pi/6
 f = s**2
 \end{sagesilent}
 \[
-x=\sin(s^2)
+x=\sage{sin(s**2)}
 \]
 \[
-y=\cos(s^2)
+y=\sage{cos(s**2)}
 \]
-\begin{figure*}
-\centering
-\includegraphics{plot-0.eps}
-\caption{Cornu Spiral}
-\end{figure*}
+\begin{center}
+\sageplot{parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (-l, l))}
+\end{center}
 
-A similar bending plot for smaller angles can be generated for using elastica based models it involves Jacobi integrals and a sage math based code and plot for it would be:
+A similar bending plot for smaller angles can be generated for using elastica based models it involves jacobi integrals and a sage math based code and plot for it would be:
 
 \begin{sageblock}
 k=0.3
 parametric_plot((lambda s: 2*k*jacobi('cn', s, k),lambda s: 2*elliptic_eu(s,k)-s ), (0, 1))
 \end{sageblock}
 
-\begin{figure*}
-\centering
-\includegraphics{plot-1.eps}
-\caption{Elastica bent}
-\end{figure*}
 
-\section{Modeling The cross section of a page}
+\begin{center}
+\sageplot{parametric_plot((lambda s:  2*elliptic_eu(s,k)-s ,lambda s: 2*k*jacobi('cn', s, k)  ), (0, 1))}
+\end{center}
 
-Euler's assumption for modeling the curvature of minimizing variations is very clearly described in his paper where he assumes the curvature of a bent rod or elastica is directly proportional to the length of the arc. which eventually leads to a Cornu spiral , but the main difference is, a typical Cornu spiral has its coordinates placed at the non-axial end of the cantilever loading. So we can modify Euler's approach by placing coordinates at the axial ending
+\section{Modelling The cross section of a page}
 
-In Euler's coordinate system
+Euler's assumption for modeling the curvature of minimizing variations is very clearly described in his paper where he assumes the curvature of a bent rod or elastica is directly proportional the the length of the arc. which eventually leads to a Cornu spiral , but the main difference is a typical Cornu spiral has its coordinates placed at the non axial end of the cantilever loading so we can modify Euler approach by placing coordinates at the axial ending
+
+In Euler coordinate system
 
 $\kappa=s$
 
 $\frac{d\theta}{ds} =s$
 
 
-if the cross length of the paper is l the same above equation cab be written as
+if the cross length of the paper is l the same above equaiton cab be writtern as
 
 $\kappa=s$
 
 $\frac{d\theta}{ds} =(m-s)$
 
-which would lead to the parametric equations 
+which would lead to the parametric equaitons 
 
 \begin{sagesilent}
 m=var('m')
 \end{sagesilent}
 
 \[
-x=\sin(ms-(s^2)/2)
+x=\sage{sin(m*s-(s**2)/2)}
 \]
 \[
-y=\cos(ms-(s^2)/2)
+y=\sage{cos(m*s-(s**2)/2)}
 \]
 
 a better way to handle this would be to actually translate the Cornu spiral to the end using brute force transformation as that would give us the advantage of bending the paper even in negative angles, a final plot for the equations would look like these:
@@ -111,11 +109,7 @@ l=sqrt(2*4*pi/3)
 f = (l*s-(s**2)/2)
 \end{sagesilent}
 
-\begin{figure*}
-\centering
-\includegraphics{plot-2.eps}
-\caption{Paper bent fully}
-\end{figure*}
+\sageplot{parametric_plot((lambda z: numerical_integral(cos(f),0,z)[0], lambda z: numerical_integral(sin(f),0,z)[0]), (0, l))}
 
 The above plot is a very easy way to represent an axial bending of a beam or a paper but in reality there is always an axial force that is applied while bending a paper which give it the more flattened shape.
 
@@ -134,7 +128,7 @@ it is easy to see that the transformation function easily vanishes when $x^{i}=0
 hence the constant term is going to vanish in Taylor expansion as $F(0,s)=0$ and $F(x^{i},0)=0$ ,so x and s can be extracted out.
 and hence $F(x^{i},s) = xsG(x^{i},s)$
 
-For the ease of our computation we can actually re write the above parametric equations in lieu with the above theorem and rewrite them as
+For the ease of our computation we can actually re write the above parametric equations in liu with the above theorem and rewrite them as
 
  $x^{0}= s^{\lambda} (\int_{0}^{s} cos(m*s-(s**2)/2) ds)$ 
  $x^{1}= s^{\lambda} (\int_{0}^{s} sin(m*s-(s**2)/2) ds)$ 
@@ -162,16 +156,12 @@ def y(t): return s*(numerical_integral(cos(f),0,t)[0] -m) - c*(numerical_integra
 parametric_plot((lambda z : x(z)*(l-z)**2,lambda z: y(z)*(l-z)**2), (e, l))
 \end{sageblock}
 
-\begin{figure*}
-\centering
-\includegraphics{plot-3.eps}
-\caption{Paper Bent And Laterally Stretched}
-\end{figure*}
+\sageplot{parametric_plot((lambda z : x(z)*(l-z)**2,lambda z: y(z)*(l-z)**2), (e, l))}
 
 \section{Computational model}
 We can use the above model to build a complete curvature equation of a paper or elastica as inscriptions on a manifold.
 Then the problem of straightening the leaves on a book would just be the inverse of the function $x^{'}(s)$
-i.e $F^{-1}(x^{'})*x^{'}$ is a flattened model of leaves on the book.An easier solution to this problem is to actually create a look up table and create linear array for all the values let $X$ be the matrix that transforms a flat paper to a curved one then the inversion of it could be solved computationally on an image which $A_{mXn}$ as multiplication of column matrix
+i.e $F^{-1}(x^{'})*x^{'}$ is a flattened model of leaves on the book.An easier solution to this problem is to actually create a look up table and create linear array for all the values let $X$ be the matrix that transforms a flat paper to  a curved one then the inversion of it could be solve computationally on an image which $A_{mXn}$ as multiplication of column matrix
 
 \[A_{mXn} \left( \begin{array}{ccc}
 F^{-1}(x^{'}) \\
@@ -182,22 +172,7 @@ F^{-1}(x^{'}) \\
 F^{-1}(x^{'}) \end{array} \right) = X\] 
 
 \section{Future Opportunities}
-This problem leads us to model various other curves that we see in our day to day life for example facial recognition can be heavily dependent on various types of elastica and spiral based splines as much of human flesh and tissues acts like an elastica  giving it the elastica type curvature cheeks and other human features.We can think of algebraic geometry as a very good alternative to neural networks for learning features of various curves and vision based problems.Unlike neural networks which requires lot of statistical data to identify  features algebraic geometry proposes a more natural human ming like approach of extracting features one or two samples of data are all that are probably required to completely understand various curves / features that are present on a human face
+This problem leads us to model various other curves that we see in our day to day life for example facial recognition can be heavenly dependent on various types of elastica and spiral based splines as much of human flesh and tissues acts like an elastica  giving it the elastica type curvature cheeks and other human features.We can think of algebraic geometry as a very good alternative to neural networks for learning features of various curves and vision based problems.Unlike neural networks which requires lot of statistical data to identify  features algebraic geometry proposes a more natural human ming like approach of extracting features one or two samples of data are all that are probably required to completely understand various curves / features that are present on a human face
 
-\begin{thebibliography}{1}
-
-\bibitem{Levien}
-Raph Levien and Raph Levien.
-\newblock The elastica: a mathematical history.
-\newblock Technical report, 2008.
-
-\bibitem{Mumford}
-David Mumford.
-\newblock Elastica and computer vision.
-\newblock In ChandrajitL. Bajaj, editor, {\em Algebraic Geometry and its
-  Applications}, pages 491--506. Springer New York, 1994.
-
-\end{thebibliography}
-
+\bibliography{Master}
 \end{document}
-
